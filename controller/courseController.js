@@ -2,6 +2,7 @@ const users = require("../model/users");
 const courses = require("../model/course");
 const { generateToken, decodeToken } = require("../services/jwtService");
 const counter = require("../model/counter");
+const courses = require("../model/course");
 
 exports.createCourse = async (req, res) => {
   try {
@@ -29,6 +30,21 @@ exports.createCourse = async (req, res) => {
           "Unauthorised to create course, Only Admin can create courses.",
       });
     }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.getCourses = async (req, res) => {
+  try {
+    let query = req.query;
+    let queryPayload = {};
+    if (query.courseId) {
+      queryPayload["courseId"] = query.courseId;
+    }
+    let courses = await courses.find(queryPayload).sort({ created_date: 1 });
+    if (courses) return res.send(courses);
+    else return res.send("No courses found");
   } catch (error) {
     console.log(error);
   }
