@@ -66,16 +66,54 @@ exports.deleteCourses = async (req, res) => {
 };
 
 exports.updateCourse = async (req, res) => {
-    try {
-      let payload = req.body;
-      if (!payload.courseId) {
-        return res.send({ message: "courseId is required" });
-      }
-      let updatedCourse = await courses.updateOne({ courseId: payload.courseId },payload);
-      if (updatedCourse)
-        return res.send({ message: "course deleted successfully" });
-      else return res.send("Could not delete course");
-    } catch (error) {
-      console.log(error);
+  try {
+    let payload = req.body;
+    if (!payload.courseId) {
+      return res.send({ message: "courseId is required" });
     }
-  };
+    let updatedCourse = await courses.updateOne(
+      { courseId: payload.courseId },
+      payload
+    );
+    if (updatedCourse)
+      return res.send({ message: "course deleted successfully" });
+    else return res.send("Could not delete course");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.addLessons = async (req, res) => {
+  try {
+    let payload = req.body;
+    if (payload.courseId && payload.lessons.length) {
+      const newLessons = req.body.lessons;
+      let addedLessions = await courses.updateOne(
+        { courseId: payload.courseId },
+        { $push: { lessons: { $each: newLessons } } }
+      );
+      if (addedLessions)
+        return res.send({ message: "lessons added successfully" });
+      else return res.send("Could not add lesson");
+    } else return res.send({ message: "Invalid Payload" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.deleteLessons = async (req, res) => {
+  try {
+    let payload = req.query;
+    if (payload.courseId && payload.lessonId) {
+      let deletedLesson = await courses.updateOne(
+        { courseId: payload.courseId },
+        { $pull: { lessons: { _id: payload.lessonId } } }
+      );
+      if (deletedLesson)
+        return res.send({ message: "lesson deleted successfully" });
+      else return res.send("Could not delete lesson");
+    } else return res.send({ message: "Invalid Payload" });
+  } catch (error) {
+    console.log(error);
+  }
+};
