@@ -14,4 +14,11 @@ router
   .post(authenticateToken, courseC.addLessons)
   .delete(authenticateToken, courseC.deleteLessons);
 
+router.route("/enroll").patch(authenticateToken, courseC.enroll);
+
+router.route("/withdraw").patch(authenticateToken, courseC.enroll);
+
+router.route("/enrolledCourses").patch(authenticateToken, courseC.enrolledCourses);
+
+
 module.exports = router;

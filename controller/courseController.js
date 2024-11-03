@@ -3,6 +3,7 @@ const courses = require("../model/course");
 const { generateToken, decodeToken } = require("../services/jwtService");
 const counter = require("../model/counter");
 const courses = require("../model/course");
+const courses = require("../model/course");
 
 exports.createCourse = async (req, res) => {
   try {
@@ -113,6 +114,61 @@ exports.deleteLessons = async (req, res) => {
         return res.send({ message: "lesson deleted successfully" });
       else return res.send("Could not delete lesson");
     } else return res.send({ message: "Invalid Payload" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.enroll = async (req, res) => {
+  try {
+    const token = await decodeToken(req);
+    const payload = req.body;
+    if (!payload.courseId || !token.userName)
+      return res.send({ message: "Course ID is required" });
+    let enrolledCourse = await users.updateOne(
+      { userName: token.userName },
+      { $addToSet: { enrolledCourses: payload.courseId } }
+    );
+    if (enrolledCourse)
+      return res.send({
+        message: "You have enrolled to this course successfully",
+      });
+    else return res.send("Could not enroll, Please try again");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.withdraw = async (req, res) => {
+  try {
+    const token = await decodeToken(req);
+    const payload = req.body;
+    if (!payload.courseId || !token.userName)
+      return res.send({ message: "Course ID is required" });
+    let enrolledCourse = await users.updateOne(
+      { userName: token.userName },
+      { $pull: { enrolledCourses: payload.courseId } }
+    );
+    if (enrolledCourse)
+      return res.send({
+        message: "You have withdrawal to this course successfully",
+      });
+    else return res.send("Could not withdraw, Please try again");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.enrolledCourses = async (req, res) => {
+  try {
+    const token = await decodeToken(req);
+    const user = await users.findOne({ userName: token.userName });
+    const enrolledCourseIds = user.enrolledCourses;
+    const allCourses = await courses.find({
+      courseId: { $in: enrolledCourseIds },
+    });
+    if (allCourses) return res.send(allCourses);
+    else return res.send("No course found");
   } catch (error) {
     console.log(error);
   }
