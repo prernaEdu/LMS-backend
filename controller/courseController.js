@@ -49,3 +49,33 @@ exports.getCourses = async (req, res) => {
     console.log(error);
   }
 };
+
+exports.deleteCourses = async (req, res) => {
+  try {
+    let query = req.query;
+    if (!query.courseId) {
+      return res.send({ message: "courseId is required" });
+    }
+    let deletedCourse = await courses.deleteOne({ courseId: query.courseId });
+    if (deletedCourse)
+      return res.send({ message: "course deleted successfully" });
+    else return res.send("Could not delete course");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.updateCourse = async (req, res) => {
+    try {
+      let payload = req.body;
+      if (!payload.courseId) {
+        return res.send({ message: "courseId is required" });
+      }
+      let updatedCourse = await courses.updateOne({ courseId: payload.courseId },payload);
+      if (updatedCourse)
+        return res.send({ message: "course deleted successfully" });
+      else return res.send("Could not delete course");
+    } catch (error) {
+      console.log(error);
+    }
+  };
